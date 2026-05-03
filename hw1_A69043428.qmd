@@ -298,6 +298,10 @@ test_matrix <- matrix(c(1,2,3, 2,4,5, 3,5,6), nrow = 3)
 is_symmetric((test_matrix))
 ```
 
+```{r}
+is_symmetric(t(A) %*% A)
+```
+
 ### 2.2 Eigenvalue Decomposition (10 points)
 
 ``` r
@@ -379,7 +383,7 @@ sqrt(D[2]^2 + D[3]^2)
 
 b)  **QR and Least Squares** (6 points): Using the data below, create the design matrix, solve the least squares problem via QR decomposition, compare with `lm()`, and explain the advantages of QR decomposition for least squares.
 
-    QR decomposition is better for least squares because it's more stable than using the normal equation approach. The normal equation uses for the formula beta = (t(X) %*% X)\^(-1) %*% t(X) %*% y, which requires forming t(X) %*% X then inverting it. The problem is that this step makes the calculation more sensitive to small rounding errors, especially when X are similar to each other, which can effect the coefficient estimates. QR avoids this problem by working directly on X, then once we have the upper triangular R matrix we can solve it by using back substitution, which is why lm() uses QR as well.
+    QR decomposition is better for least squares because it's more stable than using the normal equation approach. The normal equation uses the formula beta = (t(X) %*% X)\^(-1) %*% t(X) %*% y, which requires forming t(X) %*% X then inverting it. The problem is that this step makes the calculation more sensitive to small rounding errors, especially when the columns of X are similar to each other, which can effect the coefficient estimates. QR avoids this problem by working directly on X, then once we have the upper triangular R matrix we can solve it by using back substitution, which is why lm() uses QR as well.
 
     ```{r}
     set.seed(228)
@@ -493,7 +497,7 @@ a)  (5 points) Use `optim()` with "BFGS" to minimize the Rosenbrock function fro
 
 b)  (5 points) Use `optim()` with "Nelder-Mead". Compare all three methods (your gradient descent, BFGS, Nelder-Mead) in terms of solution accuracy, iterations, and function evaluations.
 
-    BFGS was the most accurate and most efficient, getting the exact minimum (1,1) with a function value of about 9.6e-18 in 43 gradient evaluations. Nelder-Mead got close at (1.0003, 1.0005) with a function value of 8.8e-08 using 195 function evaluations and no gradient evaluations since it does not use derivatives. Gradient descent was the least accurate, ending at (0.992, 0.985) with a function value of 5.85e-05 after running 10,000 iterations without converging. BFGS performed the best because it uses both the gradient and an estimate of the curvature to decide how to step. Gradient descent uses a fixed size step, but in BFGS it adapts size and direction of each step based on the shape of the function. Nelder-Mead got second place because it doesn't use the gradient at all, so it has less information to work with than BFGS.
+    BFGS was the most accurate and most efficient, getting the exact minimum (1,1) with a function value of about 9.6e-18 in 43 gradient evaluations. Nelder-Mead got close at (1.0003, 1.0005) with a function value of 8.8e-08 using 195 function evaluations and no gradient evaluations since it does not use derivatives. Gradient descent was the least accurate, ending at (0.992, 0.985) with a function value of 5.85e-05 after running 10,000 iterations without converging. BFGS performed the best because it uses both the gradient and an estimate of the curvature to decide how to step. Gradient descent uses a fixed size step, but BFGS it adapts size and direction of each step based on the shape of the function. Nelder-Mead got second place because it doesn't use the gradient at all, so it has less information to work with than BFGS.
 
     ```{r}
     result_nm <- optim(
@@ -576,7 +580,7 @@ b)  (4 points) Run with n = 30, 1000 replications, under three distributions: no
 
 c)  (4 points) Create a summary table and write a brief paragraph (3-5 sentences) interpreting which estimator performs best under which conditions and why.
 
-    Under the normal distribution N(0,1) the mean estimator performed with MSE 0.032 because the mean uses all the data with equal weight and when there are no outliers that gives the lowest variance. For the t(df = 3) distribution, trimmed mean performed the best with an MSE of 0.057, since heavy tails produce extreme values that pull the mean around but get cut off by trimming. For the contamination distribution, trimmed mean performed the best with an MSE of 0.056 and that's because the outliers from N(0,10) throws off the average. The median is also robust, but it only depends on the middle value, but it throws away most of the data, which is why its MSE is slightly higher than the trimmed mean.
+    Under the normal distribution N(0,1) the mean estimator performed best with MSE 0.032 because the mean uses all the data with equal weight and when there are no outliers that gives the lowest variance. For the t(df = 3) distribution, trimmed mean performed the best with an MSE of 0.057, since heavy tails produce extreme values that pull the mean around but get cut off by trimming. For contamination distribution, trimmed mean performed the best with an MSE of 0.056 and that's because the outliers from N(0,10) throws off the average. The median is also robust, but it only depends on the middle value, but it throws away most of the data, which is why its MSE is slightly higher than the trimmed mean.
 
     ```{r}
     summary_table <- data.frame(
@@ -735,7 +739,7 @@ a)  (4 points) Implement `bootstrap_ttest()` that performs a bootstrap test for 
 
 b)  (3 points) Compare your bootstrap test results with a standard t-test. Discuss any differences and potential advantages of the bootstrap approach (3-5 sentences).
 
-    Both methods gave small p values and agree that the difference between the treatment and control groups is statistically significant (bootstrap: 0.0005, t test: 0.0012). t test relies on the assumption that the data are approximately normally distributed, while the bootstrap does not assume any specific distribution and instead uses re sampling to build the null distribution directly from the data. This makes bootstrap approach more flexible since it works even when the data is skewed, outliers, or from unknown distribution. The histogram above makes it easy to see, since the observed difference of 1.396 is far out in the tail and no bootstrap differences come close to it, which visually confirms the very small p value.
+    Both methods gave small p values and agree that the difference between the treatment and control groups is statistically significant (bootstrap: 0.0005, t test: 0.0012). The t test relies on the assumption that the data are approximately normally distributed, while the bootstrap does not assume any specific distribution and instead uses re sampling to build the null distribution directly from the data. This makes bootstrap approach more flexible since it works even when the data is skewed, outliers, or from unknown distribution. The histogram above makes it easy to see, since the observed difference of 1.396 is far out in the tail and no bootstrap differences come close to it, which visually confirms the very small p value.
 
     ```{r}
     t_result <- t.test(treatment, control)
